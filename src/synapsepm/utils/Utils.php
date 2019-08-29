@@ -1,7 +1,7 @@
 <?php
+declare(strict_types=1);
 
 namespace synapsepm\utils;
-
 
 use pocketmine\network\mcpe\protocol\types\RuntimeBlockMapping;
 use pocketmine\utils\MainLogger;
@@ -33,7 +33,13 @@ class Utils {
                 ]
             )), true);
 
-            $bedrockKnownStates->setValue($runtimeIdMap);
+            $bedrockKnownStates->setValue(array_map(function (array $entry): array {
+                $entry['legacy_id'] = $entry['id'];
+                unset($entry['id']);
+
+                return $entry;
+            }, $runtimeIdMap));
+
             $runtimeToLegacyMap->setValue([]);
             $legacyToRuntimeMap->setValue([]);
 
