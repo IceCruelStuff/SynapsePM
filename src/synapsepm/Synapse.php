@@ -102,6 +102,7 @@ class Synapse {
 
         $this->owner->getScheduler()->scheduleRepeatingTask($this->task, 1);
 
+        MainLogger::getLogger()->info("password_ " . $this->password);
         if ($config['autoConnect'] ?? false) {
             $this->connect();
         }

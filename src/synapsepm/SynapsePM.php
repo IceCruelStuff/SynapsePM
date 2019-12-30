@@ -10,18 +10,24 @@ use synapsepm\utils\Utils;
 
 
 class SynapsePM extends PluginBase {
+
+    /**
+     * @var SynapsePM
+     */
+    private static $instance;
+
     /** @var Synapse[] */
     private $synapses = [];
     /** @var bool */
     private $useLoadingScreen;
 
-    public function onLoad() {
+    public function onLoad(): void {
         @RuntimeBlockMapping::fromStaticRuntimeId(0); //init the mappings
 
         Utils::initBlockRuntimeIdMapping();
     }
 
-    public function onEnable() {
+    public function onEnable(): void {
         $this->saveDefaultConfig();
         $this->reloadConfig();
 
@@ -47,7 +53,7 @@ class SynapsePM extends PluginBase {
         $this->getServer()->getCommandMap()->register("stransfer", new TransferCommand());
     }
 
-    public function onDisable() {
+    public function onDisable(): void {
         foreach ($this->synapses as $synapse) {
             $synapse->shutdown();
         }
@@ -58,7 +64,7 @@ class SynapsePM extends PluginBase {
      *
      * @param Synapse $synapse
      */
-    public function addSynapse(Synapse $synapse) {
+    public function addSynapse(Synapse $synapse): void {
         $this->synapses[spl_object_hash($synapse)] = $synapse;
     }
 
@@ -67,7 +73,7 @@ class SynapsePM extends PluginBase {
      *
      * @param Synapse $synapse
      */
-    public function removeSynapse(Synapse $synapse) {
+    public function removeSynapse(Synapse $synapse): void {
         unset($this->synapses[spl_object_hash($synapse)]);
     }
 
@@ -84,5 +90,9 @@ class SynapsePM extends PluginBase {
      */
     public function isUseLoadingScreen(): bool {
         return $this->useLoadingScreen;
+    }
+
+    public static function getInstance(): SynapsePM {
+        return self::$instance;
     }
 }
