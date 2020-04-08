@@ -20,6 +20,7 @@ use pocketmine\utils\UUID;
 use synapsepm\event\player\PlayerConnectEvent;
 use synapsepm\network\protocol\spp\PlayerLoginPacket;
 use synapsepm\network\protocol\spp\TransferPacket;
+use synapsepm\network\SynapsePlayerNetworkSessionAdapter;
 use synapsepm\network\SynLibInterface;
 use synapsepm\utils\DataPacketEidReplacer;
 
@@ -36,7 +37,8 @@ class Player extends PMPlayer {
         parent::__construct($interface, $ip, $port);
         $this->synapse = $interface->getSynapse();
 
-//        $this->sessionAdapter = new SynapsePlayerNetworkSessionAdapter($this->server, $this);
+        // Override original one
+        $this->sessionAdapter = new SynapsePlayerNetworkSessionAdapter($this->server, $this);
     }
 
     public function handleLoginPacket(PlayerLoginPacket $packet) {
@@ -171,7 +173,8 @@ class Player extends PMPlayer {
         parent::broadcastMotion();
     }
 
-    protected function broadcastMovement(bool $teleport = false): void {
+    public function broadcastMovement(bool $teleport = false): void
+    {
         $pk = new MoveActorAbsolutePacket();
         $pk->entityRuntimeId = PHP_INT_MAX;
         $pk->position = $this->getOffsetPosition($this);
@@ -269,7 +272,8 @@ class Player extends PMPlayer {
         $this->setSprinting(false);
         $this->setSneaking(false);
 
-        $this->forceSendEmptyChunks();
+        // $this->forceSendEmptyChunks();
+        $this->setImmobile();
 
         $transferPacket = new TransferPacket();
         $transferPacket->uuid = $this->getUniqueId();
