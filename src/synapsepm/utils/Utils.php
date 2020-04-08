@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace synapsepm\utils;
 
-use pocketmine\nbt\NBT;
-use pocketmine\nbt\NetworkLittleEndianNBTStream;
-use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\network\mcpe\protocol\types\RuntimeBlockMapping;
 use pocketmine\utils\MainLogger;
 
 class Utils {
+
+    const NUKKIT_RUNTIMEID_TABLE = "https://raw.githubusercontent.com/NukkitX/Nukkit/master/src/main/resources/runtime_block_states.dat";
 
     public static function initBlockRuntimeIdMapping() {
         try {
@@ -25,12 +25,17 @@ class Utils {
             $registerMapping = $reflect->getMethod("registerMapping");
             $registerMapping->setAccessible(true);
 
-            $blockPalette = file_get_contents(__DIR__ . '/../resources/required_block_states.nbt');
+            $blockPalette = file_get_contents(self::NUKKIT_RUNTIMEID_TABLE, false, stream_context_create(
+                [
+                    "ssl" => [
+                        "verify_peer" => false,
+                        "verify_peer_name" => false,
+                    ]
+                ]
+            ));
 
-            $tag = (new NetworkLittleEndianNBTStream())->read($blockPalette);
-            if (!($tag instanceof ListTag) or $tag->getTagType() !== NBT::TAG_Compound) { //this is a little redundant currently, but good for auto complete and makes phpstan happy
-                throw new \RuntimeException("Invalid blockstates table, expected TAG_List<TAG_Compound> root");
-            }
+            $tag = (new LittleEndianNBTStream())->read($blockPalette);
+            var_dump("ok");
 
             $bedrockKnownStates->setValue($tag->getValue());
             $runtimeToLegacyMap->setValue([]);
