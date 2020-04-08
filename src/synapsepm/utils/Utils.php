@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace synapsepm\utils;
 
 use pocketmine\nbt\LittleEndianNBTStream;
+use pocketmine\nbt\NBT;
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\protocol\types\RuntimeBlockMapping;
 use pocketmine\utils\MainLogger;
 
@@ -35,7 +37,9 @@ class Utils {
             ));
 
             $tag = (new LittleEndianNBTStream())->read($blockPalette);
-            var_dump("ok");
+            if (!($tag instanceof ListTag) or $tag->getTagType() !== NBT::TAG_Compound) { //this is a little redundant currently, but good for auto complete and makes phpstan happy
+                throw new \RuntimeException("Invalid blockstates table, expected TAG_List<TAG_Compound> root");
+            }
 
             $bedrockKnownStates->setValue($tag->getValue());
             $runtimeToLegacyMap->setValue([]);
