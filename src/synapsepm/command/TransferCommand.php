@@ -51,4 +51,5 @@ class TransferCommand extends Command {
 
         $target->synapseTransferByDesc($server);
     }
+
 }
